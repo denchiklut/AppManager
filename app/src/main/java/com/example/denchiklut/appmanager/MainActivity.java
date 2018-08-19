@@ -1,5 +1,6 @@
 package com.example.denchiklut.appmanager;
 
+import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -90,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.install_item:
-                showToast();
+                Intent intent = new Intent(this, FilePickerActivity.class);
+                startActivity(intent);
                 return true;
 
             default:

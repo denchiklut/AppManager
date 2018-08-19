@@ -14,9 +14,32 @@ import java.util.List;
 public class AppsAdapter extends RecyclerView.Adapter<AppsAdapter.ViewHolder> {
 
     private List<AppInfo> apps = new ArrayList<>();
+    private List<AppInfo> filteredApps = new ArrayList<>();
+    private String query = "";
 
     public void setApps (List<AppInfo> apps) {
         this.apps = apps;
+        filterApps();
+    }
+
+    public void filterApps() {
+        filteredApps.clear();
+
+        if (query.isEmpty()) {
+            filteredApps.addAll(apps);
+        }else {
+            for (AppInfo app: apps) {
+                if (app.getName().toLowerCase().contains(query)) {
+                    filteredApps.add(app);
+                }
+            }
+        }
+    }
+
+    public void setQuery(String s) {
+        this.query = s;
+
+        filterApps();
     }
 
     @NonNull
@@ -36,7 +59,7 @@ public class AppsAdapter extends RecyclerView.Adapter<AppsAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
 
-        AppInfo appInfo = apps.get(i);
+        AppInfo appInfo = filteredApps.get(i);
 
         viewHolder.nameTv.setText(appInfo.getName());
         viewHolder.versionTv.setText(appInfo.getVersionName());
@@ -48,7 +71,7 @@ public class AppsAdapter extends RecyclerView.Adapter<AppsAdapter.ViewHolder> {
     // В этом методе мы возвращаем количество элементов списка
     @Override
     public int getItemCount() {
-        return apps.size();
+        return filteredApps.size();
     }
 
 

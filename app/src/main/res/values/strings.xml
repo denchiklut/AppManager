@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">App Manager</string>
+    <string name="install_item">Установить</string>
+    <string name="search">Поиск</string>
 </resources>

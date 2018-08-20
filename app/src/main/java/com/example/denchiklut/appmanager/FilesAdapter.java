@@ -1,6 +1,7 @@
 package com.example.denchiklut.appmanager;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +53,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         File file = files.get(i);
         viewHolder.nameTv.setText(file.getName());
+        viewHolder.itemView.setTag(file);
     }
 
     @Override
@@ -66,6 +68,28 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.ViewHolder> 
             super(itemView);
 
             nameTv = itemView.findViewById(R.id.name_tv);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    File file = (File) view.getTag();
+
+                    if (onFileClickListener != null) {
+                        onFileClickListener.onFileClick(file);
+                    }
+                }
+            });
         }
     }
+
+    public interface OnFileClickListener {
+        void onFileClick(File file);
+    }
+
+    @Nullable
+    private OnFileClickListener onFileClickListener;
+
+    public void setOnFileClickListener(@Nullable OnFileClickListener onFileClickListener) {
+        this.onFileClickListener = onFileClickListener;
+    }
+
 }

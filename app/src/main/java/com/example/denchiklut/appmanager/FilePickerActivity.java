@@ -22,6 +22,19 @@ public class FilePickerActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 1;
 
     private FileManager fileManager;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        filesAdapter.setOnFileClickListener(onFileClickListener);
+    }
+
+    @Override
+    protected void onStop() {
+        filesAdapter.setOnFileClickListener(null);
+        super.onStop();
+    }
+
     private FilesAdapter filesAdapter;
 
     @Override
@@ -80,4 +93,14 @@ public class FilePickerActivity extends AppCompatActivity {
             }
         }
     }
+
+    private final FilesAdapter.OnFileClickListener onFileClickListener = new FilesAdapter.OnFileClickListener() {
+        @Override
+        public void onFileClick(File file) {
+            if (file.isDirectory()) {
+                fileManager.navigateTo(file);
+                updateFileList();
+            }
+        }
+    };
 }

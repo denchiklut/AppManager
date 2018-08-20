@@ -8,19 +8,45 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.Toast;
+
+import java.io.File;
+import java.util.List;
 
 public class FilePickerActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_CODE = 1;
 
+    private FileManager fileManager;
+    private FilesAdapter filesAdapter;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_picker);
+
+        RecyclerView recyclerView = findViewById(R.id.files_rv);
+        LinearLayoutManager  layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        DividerItemDecoration decoration = new DividerItemDecoration(this, layoutManager.getOrientation());
+        recyclerView.addItemDecoration(decoration);
+
+        filesAdapter = new FilesAdapter();
+        recyclerView.setAdapter(filesAdapter);
+
         initFileManager();
+    }
+
+    public void updateFileList() {
+        List<File> files = fileManager.getFiles();
+
+        filesAdapter.setFiles(files);
+        filesAdapter.notifyDataSetChanged();
     }
 
     public void requestPermisions() {
@@ -30,7 +56,9 @@ public class FilePickerActivity extends AppCompatActivity {
     public void initFileManager() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             //Разрешение получено
-            Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show();
+           fileManager = new FileManager(this);
+           updateFileList();
+
         } else {
             requestPermisions();
         }

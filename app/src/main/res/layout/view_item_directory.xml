@@ -9,12 +9,13 @@
     android:paddingStart="16dp"
     android:paddingTop="8dp">
 
+
     <ImageView
         android:id="@+id/icon_iv"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:adjustViewBounds="true"
-        android:src="@drawable/ic_file_92dp"/>
+        android:src="@drawable/ic_folder_92dp"/>
 
     <TextView
         android:id="@+id/name_tv"

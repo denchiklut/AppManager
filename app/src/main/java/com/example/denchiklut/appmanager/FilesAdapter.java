@@ -64,6 +64,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView nameTv;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 

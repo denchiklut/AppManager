@@ -103,4 +103,14 @@ public class FilePickerActivity extends AppCompatActivity {
             }
         }
     };
+
+    @Override
+    public void onBackPressed() {
+
+        if (fileManager != null  && fileManager.navigateUp()){
+            updateFileList();
+        } else {
+            super.onBackPressed();
+        }
+    }
 }

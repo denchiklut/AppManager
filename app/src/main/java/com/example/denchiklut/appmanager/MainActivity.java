@@ -1,9 +1,12 @@
 package com.example.denchiklut.appmanager;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -12,17 +15,20 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import android.widget.Toast;
 
+import java.io.File;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final int REQUEST_CODE_PICK_APK = 1;
 
     private SwipeRefreshLayout swipeRefreshLayout;
+
     private AppManager appManager;
     private AppsAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,64 +44,9 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.apps_rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
-        Log.i(TAG, "onCreate");
+
         reloadApps();
     }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.i(TAG, "onRestart");
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "onStart");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "onResume");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i(TAG, "onPause");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i(TAG, "onStop");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i(TAG, "onDestroy");
-    }
-
-
-    private void reloadApps() {
-        List<AppInfo> installedApps = appManager.getInstalledApps();
-        adapter.setApps(installedApps);
-        adapter.notifyDataSetChanged();
-    }
-
-    public void showToast() {
-        Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
-    }
-
-    private final SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
-        @Override
-        public void onRefresh() {
-            reloadApps();
-            swipeRefreshLayout.setRefreshing(false);
-        }
-    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -129,8 +80,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.install_item:
-                Intent intent = new Intent(this, FilePickerActivity.class);
-                startActivity(intent);
+                startFilePickerActivity();
                 return true;
 
             default:
@@ -138,4 +88,82 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_APK && resultCode == RESULT_OK) {
+            String apkPath = data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH);
+            Log.i(TAG, "apk path: " + apkPath);
+
+            startAppInstallation(apkPath);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+
+    /**
+
+     * Сообщаем системе, что хотим установить APK
+
+     *
+
+     * @param apkPath Путь до APK-файла
+
+     */
+    public void startAppInstallation(String apkPath) {
+        Intent installIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+
+        Uri uri;
+
+        if (Build.VERSION.SDK_INT  >= Build.VERSION_CODES.N) {
+            uri = FileProvider.getUriForFile(this,
+                    BuildConfig.APPLICATION_ID + ".provider", new File(apkPath));
+
+            installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else {
+            uri = Uri.fromFile(new File(apkPath));
+        }
+
+        installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+        installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Создаст новый процесс
+
+        startActivity(installIntent);
+
+    }
+
+    /**
+
+     * Запускаем Activity для выбора файла
+
+     */
+    public void  startFilePickerActivity() {
+        Intent intent = new Intent(this, FilePickerActivity.class);
+        startActivityForResult(intent, REQUEST_CODE_PICK_APK);
+    }
+
+
+    /**
+
+     * Перезагружаем список приложений
+
+     */
+    private void reloadApps() {
+        List<AppInfo> installedApps = appManager.getInstalledApps();
+        adapter.setApps(installedApps);
+        adapter.notifyDataSetChanged();
+
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    /**
+     * Listener для SwipeRefreshLayout
+     */
+    private final SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+        @Override
+        public void onRefresh() {
+            reloadApps();
+        }
+    };
+
 }

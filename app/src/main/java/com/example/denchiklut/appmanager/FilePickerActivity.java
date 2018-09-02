@@ -1,6 +1,8 @@
 package com.example.denchiklut.appmanager;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,6 +22,7 @@ public class FilePickerActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_CODE = 1;
+    public static final String EXTRA_FILE_PATH = "file_path";
 
     private FileManager fileManager;
 
@@ -100,6 +103,13 @@ public class FilePickerActivity extends AppCompatActivity {
             if (file.isDirectory()) {
                 fileManager.navigateTo(file);
                 updateFileList();
+            } else {
+                if (file.getName().endsWith(".apk")) {
+                    Intent intent = new Intent();
+                    intent.putExtra(EXTRA_FILE_PATH, file.getAbsolutePath());
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
             }
         }
     };
